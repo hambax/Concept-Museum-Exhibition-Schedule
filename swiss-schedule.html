@@ -1,0 +1,953 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Modern Art Museum — Exhibition Schedule</title>
+    <meta
+      name="description"
+      content="A Swiss/International Typographic Style interactive museum exhibition schedule."
+    />
+    <style>
+      :root {
+        --bg: #ffffff;
+        --ink: #0b0b0b;
+        --muted: rgba(11, 11, 11, 0.62);
+        --hairline: rgba(11, 11, 11, 0.12);
+        --hairline2: rgba(11, 11, 11, 0.08);
+        --accent: #ff4f00; /* International Orange */
+
+        --gutter: 20px;
+        --col: minmax(0, 1fr);
+        --maxw: 1200px;
+
+        --grid-overlay: 0; /* toggled by JS */
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Helvetica Neue", Helvetica, Arial, ui-sans-serif, system-ui,
+          -apple-system, "Segoe UI", sans-serif;
+        letter-spacing: -0.01em;
+        overflow-x: hidden;
+      }
+
+      /* Swiss grid hint: subtle modular lines */
+      .page {
+        min-height: 100vh;
+        position: relative;
+        isolation: isolate;
+      }
+
+      .gridHint {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background-image:
+          linear-gradient(to right, var(--hairline2) 1px, transparent 1px),
+          linear-gradient(to bottom, var(--hairline2) 1px, transparent 1px);
+        background-size: calc(100vw / 12) 96px;
+        opacity: calc(0.18 * var(--grid-overlay));
+      }
+
+      .wrap {
+        position: relative;
+        z-index: 2;
+        width: min(var(--maxw), calc(100% - (2 * var(--gutter))));
+        margin: 0 auto;
+        padding: 34px 0 56px;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: repeat(12, var(--col));
+        gap: var(--gutter);
+        align-items: start;
+      }
+
+      .masthead {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: repeat(12, var(--col));
+        gap: var(--gutter);
+        padding-bottom: 18px;
+        border-bottom: 1px solid var(--hairline);
+      }
+
+      .brand {
+        grid-column: 1 / 6;
+        font-size: 14px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+        line-height: 1.1;
+      }
+
+      .brand b {
+        color: var(--ink);
+        font-weight: 700;
+        letter-spacing: 0.08em;
+      }
+
+      .heroTitle {
+        grid-column: 1 / -1;
+        margin: 10px 0 0;
+        font-weight: 800;
+        font-size: clamp(56px, 8.6vw, 132px);
+        line-height: 0.86;
+        letter-spacing: -0.04em;
+      }
+
+      .heroTitle .accent {
+        color: var(--accent);
+        font-weight: 900;
+      }
+
+      .metaRail {
+        grid-column: 8 / -1;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--gutter);
+        align-content: start;
+      }
+
+      .metaBlock {
+        border-top: 1px solid var(--hairline);
+        padding-top: 10px;
+      }
+
+      .k {
+        font-size: 10px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .v {
+        margin-top: 6px;
+        font-size: 12px;
+        letter-spacing: 0.06em;
+        line-height: 1.4;
+      }
+
+      .v .dot {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        background: var(--accent);
+        margin: 0 8px 0 0;
+        vertical-align: -1px;
+      }
+
+      .main {
+        grid-column: 1 / -1;
+        padding-top: 20px;
+      }
+
+      .sectionTitle {
+        grid-column: 1 / 5;
+        font-weight: 800;
+        font-size: 40px;
+        letter-spacing: -0.03em;
+        line-height: 0.95;
+        margin: 0;
+      }
+
+      .subcopy {
+        grid-column: 5 / 8;
+        margin: 6px 0 0;
+        font-size: 12px;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      .rail {
+        grid-column: 8 / -1;
+        margin-top: 4px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 14px;
+        align-items: baseline;
+        flex-wrap: wrap;
+      }
+
+      .railBtn {
+        border: none;
+        background: transparent;
+        color: var(--ink);
+        padding: 0;
+        cursor: pointer;
+        font: inherit;
+        text-align: left;
+      }
+
+      .railBtn .k {
+        display: block;
+      }
+
+      .railBtn .v {
+        margin-top: 4px;
+      }
+
+      .rule {
+        grid-column: 1 / -1;
+        height: 1px;
+        background: var(--hairline);
+        margin: 18px 0 10px;
+      }
+
+      .listWrap {
+        grid-column: 5 / -1; /* intentional asymmetry */
+        position: relative;
+      }
+
+      .listHeader {
+        display: grid;
+        grid-template-columns: 3.2fr 1.2fr 1fr 1.2fr;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--hairline);
+      }
+
+      .listHeader span {
+        font-size: 10px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .item {
+        border-bottom: 1px solid var(--hairline);
+      }
+
+      .row {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 3.2fr 1.2fr 1fr 1.2fr;
+        gap: 12px;
+        align-items: baseline;
+        padding: 14px 0 14px;
+        cursor: pointer;
+        background: transparent;
+        border: none;
+        color: inherit;
+        text-align: left;
+        font: inherit;
+        position: relative;
+      }
+
+      .row:focus-visible {
+        outline: none;
+      }
+
+      .row:focus-visible::after {
+        content: "";
+        position: absolute;
+        inset: -2px 0;
+        border-top: 1px solid var(--accent);
+        border-bottom: 1px solid var(--accent);
+        pointer-events: none;
+      }
+
+      .title {
+        font-weight: 800;
+        font-size: 18px;
+        letter-spacing: -0.02em;
+        line-height: 1.05;
+      }
+
+      .tiny {
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        line-height: 1.35;
+      }
+
+      .date {
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .avail {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .bar {
+        height: 8px;
+        width: 76px;
+        border: 1px solid var(--hairline);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .bar > i {
+        display: block;
+        height: 100%;
+        background: var(--accent);
+        width: var(--w, 50%);
+        opacity: 0.9;
+        mix-blend-mode: multiply;
+      }
+
+      .pct {
+        font-size: 10px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+      }
+
+      /* Active row highlight: Swiss minimal, orange hairline + optical shift */
+      .row[data-active="true"] .title {
+        color: var(--ink);
+      }
+
+      .row[data-active="true"]::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        background: linear-gradient(
+          to right,
+          rgba(255, 79, 0, 0.08),
+          rgba(255, 79, 0, 0)
+        );
+        pointer-events: none;
+      }
+
+      /* Artwork preview (generated image, clipped to primitive shape) */
+      .previewWrap {
+        grid-column: 1 / 5;
+        position: relative;
+        padding-top: 2px;
+      }
+
+      .previewHeader {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+        padding: 10px 0 12px;
+        border-bottom: 1px solid var(--hairline);
+      }
+
+      .artStage {
+        padding-top: 14px;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+
+      .artShape {
+        width: min(40vmin, 340px);
+        height: min(40vmin, 340px);
+        max-width: 100%;
+        aspect-ratio: 1 / 1;
+        overflow: hidden;
+        background: rgba(11, 11, 11, 0.02);
+        filter: saturate(1.02) contrast(1.03);
+      }
+
+      .artShape[data-shape="circle"] {
+        border-radius: 999px;
+      }
+
+      .artShape[data-shape="triangle"] {
+        border-radius: 0;
+        clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+      }
+
+      .artShape img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .artMeta {
+        border-top: 1px solid var(--hairline);
+        padding-top: 10px;
+      }
+
+      /* Swiss “paper” micro-noise (still pure monochrome; no images) */
+      .page::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 5;
+        background-image:
+          radial-gradient(circle at 20% 10%, rgba(0, 0, 0, 0.03) 0 1px, transparent 1px),
+          radial-gradient(circle at 80% 30%, rgba(0, 0, 0, 0.02) 0 1px, transparent 1px),
+          radial-gradient(circle at 35% 75%, rgba(0, 0, 0, 0.02) 0 1px, transparent 1px);
+        background-size: 260px 260px, 340px 340px, 420px 420px;
+        opacity: 0.22;
+        mix-blend-mode: multiply;
+      }
+
+      /* Cursor/hover hairline: pure orange and rules */
+      .row:hover::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: -1px;
+        height: 1px;
+        background: var(--accent);
+        opacity: 0.9;
+        pointer-events: none;
+      }
+
+      .row:hover + .row::before {
+        /* preserve rhythm when hovering between rows (no layout shift) */
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+
+      /* Make microtype feel more “typeset” */
+      .tiny,
+      .v {
+        font-variant-numeric: tabular-nums;
+      }
+
+      /* On very large screens, increase typographic authority */
+      @media (min-width: 1400px) {
+        :root {
+          --maxw: 1320px;
+        }
+        .title {
+          font-size: 19px;
+        }
+      }
+
+      /* Footer microcopy */
+      .footer {
+        grid-column: 1 / 6;
+        margin-top: 24px;
+        padding-top: 12px;
+        border-top: 1px solid var(--hairline);
+        font-size: 10px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--muted);
+        line-height: 1.7;
+      }
+
+      .footer kbd {
+        font: inherit;
+        border: 1px solid var(--hairline);
+        padding: 2px 6px;
+        letter-spacing: 0.22em;
+        margin: 0 6px 0 0;
+      }
+
+      @media (max-width: 980px) {
+        :root {
+          --gutter: 14px;
+        }
+
+        .brand {
+          grid-column: 1 / -1;
+        }
+        .metaRail {
+          grid-column: 1 / -1;
+          margin-top: 10px;
+        }
+
+        .sectionTitle {
+          grid-column: 1 / -1;
+        }
+        .subcopy {
+          grid-column: 1 / -1;
+        }
+        .rail {
+          grid-column: 1 / -1;
+          justify-content: flex-start;
+        }
+        .listWrap {
+          grid-column: 1 / -1;
+        }
+        .previewWrap {
+          grid-column: 1 / -1;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .artShape img {
+          scroll-behavior: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page" id="page">
+      <div class="gridHint" aria-hidden="true"></div>
+
+      <div class="wrap">
+        <div class="layout">
+          <header class="masthead" aria-label="Museum header">
+            <div class="brand">
+              <div class="k">Institution</div>
+              <div class="v"><b>Modern Art Museum</b> / Schedule Office</div>
+            </div>
+
+            <h1 class="heroTitle">
+              Exhibition<br />
+              <span class="accent">Schedule</span>
+            </h1>
+
+            <div class="metaRail" aria-label="Key metadata">
+              <div class="metaBlock">
+                <div class="k">Season</div>
+                <div class="v"><span class="dot" aria-hidden="true"></span>Winter 2026</div>
+              </div>
+              <div class="metaBlock">
+                <div class="k">Admission</div>
+                <div class="v">Timed entry / dynamic availability</div>
+              </div>
+              <div class="metaBlock">
+                <div class="k">Hours</div>
+                <div class="v">Tue–Sun 10:00–19:00</div>
+              </div>
+              <div class="metaBlock">
+                <div class="k">Address</div>
+                <div class="v">Docklands / North Gallery</div>
+              </div>
+            </div>
+          </header>
+
+          <main class="main layout" aria-label="Upcoming exhibitions">
+            <h2 class="sectionTitle">Upcoming Exhibitions</h2>
+            <p class="subcopy">
+              A modular program: rigid structure, asymmetrical balance. Hover or focus a
+              line item to surface a generated artwork preview.
+            </p>
+            <div class="rail" aria-label="Controls">
+              <button class="railBtn" id="btnShuffle" type="button">
+                <span class="k">Action</span>
+                <span class="v">Shuffle</span>
+              </button>
+              <button class="railBtn" id="btnGrid" type="button" aria-pressed="false">
+                <span class="k">Grid</span>
+                <span class="v">Toggle</span>
+              </button>
+            </div>
+
+            <div class="rule" aria-hidden="true"></div>
+
+            <section class="previewWrap" aria-label="Artwork preview">
+              <div class="previewHeader">
+                <div class="k">Artwork preview</div>
+                <div class="v">Generated gradient / clipped to primitive form</div>
+              </div>
+              <div class="artStage">
+                <div class="artShape" id="artShape" data-shape="square">
+                  <img id="artImg" alt="" />
+                </div>
+                <div class="artMeta" aria-live="polite">
+                  <div class="k">Selection</div>
+                  <div class="v" id="artTitle">—</div>
+                  <div class="k" style="margin-top: 10px">Curator</div>
+                  <div class="v" id="artCurator">—</div>
+                  <div class="k" style="margin-top: 10px">Dates</div>
+                  <div class="v" id="artDates">—</div>
+                </div>
+              </div>
+            </section>
+
+            <section class="listWrap" aria-label="Exhibition list">
+              <div class="listHeader" aria-hidden="true">
+                <span>Title</span>
+                <span>Dates</span>
+                <span>Curator</span>
+                <span>Tickets</span>
+              </div>
+              <ul class="list" id="list"></ul>
+            </section>
+
+            <footer class="footer">
+              <div>Keyboard: <kbd>Tab</kbd> focus rows · <kbd>G</kbd> grid overlay</div>
+              <div>System fonts only · Generated images · No external assets</div>
+            </footer>
+          </main>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        const $ = (sel) => document.querySelector(sel);
+        const listEl = $("#list");
+        const page = $("#page");
+        const btnShuffle = $("#btnShuffle");
+        const btnGrid = $("#btnGrid");
+        const artImg = $("#artImg");
+        const artShape = $("#artShape");
+        const artTitle = $("#artTitle");
+        const artCurator = $("#artCurator");
+        const artDates = $("#artDates");
+
+        const artCache = new Map();
+
+        const TITLES = [
+          "Form & Void",
+          "The Grid",
+          "Reductivism",
+          "Axis / Field",
+          "Concrete Silence",
+          "Negative Space",
+          "Measured Noise",
+          "Monochrome Logic",
+          "Asymmetry Studies",
+          "Optical Remainder",
+          "Rules & Ruptures",
+          "Surface Tension",
+        ];
+
+        const CURATORS = [
+          "Anika Rohe",
+          "Martin Weiss",
+          "Leila Hartmann",
+          "Jonas Keller",
+          "Sofia Brun",
+          "Noah Brandt",
+          "Mira Vogel",
+          "Inez Portmann",
+          "Ada Neumann",
+          "Felix Stettler",
+        ];
+
+        const SHAPES = ["circle", "square", "triangle"];
+
+        function randInt(min, max) {
+          return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function pick(arr) {
+          return arr[randInt(0, arr.length - 1)];
+        }
+
+        function uniqTitles(n) {
+          const pool = TITLES.slice();
+          const out = [];
+          while (out.length < n && pool.length) {
+            const i = randInt(0, pool.length - 1);
+            out.push(pool.splice(i, 1)[0]);
+          }
+          // fallback if n > TITLES length (shouldn’t happen here)
+          while (out.length < n) out.push(pick(TITLES) + " II");
+          return out;
+        }
+
+        function pad2(n) {
+          return String(n).padStart(2, "0");
+        }
+
+        function fmtDate(d) {
+          const y = d.getFullYear();
+          const m = pad2(d.getMonth() + 1);
+          const day = pad2(d.getDate());
+          return `${y}-${m}-${day}`;
+        }
+
+        function hash32(str) {
+          // FNV-1a 32-bit
+          let h = 0x811c9dc5;
+          for (let i = 0; i < str.length; i++) {
+            h ^= str.charCodeAt(i);
+            h = Math.imul(h, 0x01000193);
+          }
+          return h >>> 0;
+        }
+
+        function mulberry32(seed) {
+          let t = seed >>> 0;
+          return function () {
+            t += 0x6d2b79f5;
+            let r = Math.imul(t ^ (t >>> 15), 1 | t);
+            r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+            return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+          };
+        }
+
+        function hsl(h, s, l) {
+          return `hsl(${Math.round(h)} ${Math.round(s)}% ${Math.round(l)}%)`;
+        }
+
+        function generateArtworkDataUrl(seed) {
+          const key = String(seed >>> 0);
+          const hit = artCache.get(key);
+          if (hit) return hit;
+
+          const rnd = mulberry32(seed);
+          const size = 900;
+          const c = document.createElement("canvas");
+          c.width = size;
+          c.height = size;
+          const ctx = c.getContext("2d");
+          if (!ctx) {
+            const url = "data:image/png;base64,iVBORw0KGgo="; // tiny fallback marker
+            artCache.set(key, url);
+            return url;
+          }
+
+          // Harmonious palette: analogous cluster around a base hue
+          const baseHue = rnd() * 360;
+          const drift = 18 + rnd() * 28;
+          const h1 = baseHue;
+          const h2 = (baseHue + drift) % 360;
+          const h3 = (baseHue - drift) % 360;
+          const h4 = (baseHue + drift * 0.55) % 360;
+
+          const satA = 58 + rnd() * 18;
+          const satB = 62 + rnd() * 14;
+          const satC = 52 + rnd() * 18;
+          const satD = 56 + rnd() * 16;
+
+          const lightA = 56 + rnd() * 12;
+          const lightB = 44 + rnd() * 14;
+          const lightC = 52 + rnd() * 12;
+          const lightD = 46 + rnd() * 14;
+
+          // Base linear gradient (large, calm)
+          const ang = rnd() * Math.PI * 2;
+          const x0 = size / 2 + Math.cos(ang) * (size * 0.55);
+          const y0 = size / 2 + Math.sin(ang) * (size * 0.55);
+          const x1 = size - x0;
+          const y1 = size - y0;
+          const g = ctx.createLinearGradient(x0, y0, x1, y1);
+          g.addColorStop(0, hsl(h1, satA, lightA));
+          g.addColorStop(0.33, hsl(h2, satB, lightB));
+          g.addColorStop(0.66, hsl(h3, satC, lightC));
+          g.addColorStop(1, hsl(h4, satD, lightD));
+          ctx.fillStyle = g;
+          ctx.fillRect(0, 0, size, size);
+
+          // Radial “light” volumes (structured, not chaotic)
+          ctx.globalCompositeOperation = "screen";
+          for (let i = 0; i < 3; i++) {
+            const rx = size * (0.18 + rnd() * 0.64);
+            const ry = size * (0.18 + rnd() * 0.64);
+            const rr = size * (0.22 + rnd() * 0.34);
+            const rg = ctx.createRadialGradient(rx, ry, 0, rx, ry, rr);
+            const hh = (baseHue + (i - 1) * (drift * 0.85)) % 360;
+            rg.addColorStop(0, `hsla(${hh} ${Math.round(72 + rnd() * 10)}% ${Math.round(70 + rnd() * 8)}% / ${0.34})`);
+            rg.addColorStop(1, "hsla(0 0% 100% / 0)");
+            ctx.fillStyle = rg;
+            ctx.fillRect(0, 0, size, size);
+          }
+
+          // Soft structure lines (Swiss “order”)
+          ctx.globalCompositeOperation = "overlay";
+          ctx.globalAlpha = 0.08;
+          ctx.lineWidth = 1;
+          const step = 26 + Math.floor(rnd() * 20);
+          const skew = (rnd() - 0.5) * 0.12;
+          for (let x = -size; x <= size * 2; x += step) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x + size * skew, size);
+            ctx.strokeStyle = "rgba(0,0,0,0.75)";
+            ctx.stroke();
+          }
+
+          // Micro-grain (subtle, like paper)
+          ctx.globalCompositeOperation = "soft-light";
+          ctx.globalAlpha = 0.09;
+          const n = document.createElement("canvas");
+          n.width = 220;
+          n.height = 220;
+          const nctx = n.getContext("2d");
+          const img = nctx.createImageData(n.width, n.height);
+          for (let i = 0; i < img.data.length; i += 4) {
+            const v = Math.floor(rnd() * 255);
+            img.data[i] = v;
+            img.data[i + 1] = v;
+            img.data[i + 2] = v;
+            img.data[i + 3] = 255;
+          }
+          nctx.putImageData(img, 0, 0);
+          ctx.drawImage(n, 0, 0, size, size);
+
+          ctx.globalAlpha = 1;
+          ctx.globalCompositeOperation = "source-over";
+
+          const url = c.toDataURL("image/png");
+          artCache.set(key, url);
+          return url;
+        }
+
+        function updatePreview(item) {
+          artTitle.textContent = item.title;
+          artCurator.textContent = item.curator;
+          artDates.textContent = `${item.dateFrom}—${item.dateTo}`;
+
+          artShape.dataset.shape = item.shape;
+          const url = generateArtworkDataUrl(item.artSeed);
+          artImg.src = url;
+          artImg.alt = `Generated artwork preview for ${item.title}`;
+        }
+
+        function createExhibitions(count = 8) {
+          const startBase = new Date();
+          startBase.setDate(startBase.getDate() + 2);
+
+          const titles = uniqTitles(count);
+          const items = [];
+          for (let i = 0; i < count; i++) {
+            const start = new Date(startBase);
+            start.setDate(start.getDate() + i * randInt(5, 11));
+            const durationDays = randInt(12, 38);
+            const end = new Date(start);
+            end.setDate(end.getDate() + durationDays);
+
+            const curator = pick(CURATORS);
+            const title = titles[i];
+            const dateFrom = fmtDate(start);
+            const dateTo = fmtDate(end);
+            const shape = SHAPES[i % SHAPES.length];
+            const artSeed = hash32(`${title}|${curator}|${dateFrom}|${dateTo}|${shape}`);
+
+            items.push({
+              id: `ex_${Date.now()}_${i}_${randInt(1000, 9999)}`,
+              title,
+              curator,
+              availability: randInt(6, 98),
+              dateFrom,
+              dateTo,
+              shape,
+              artSeed,
+            });
+          }
+          return items;
+        }
+
+        function shuffleInPlace(arr) {
+          for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+          }
+          return arr;
+        }
+
+        function render(items) {
+          listEl.innerHTML = "";
+          items.forEach((it, idx) => {
+            const li = document.createElement("li");
+            li.className = "item";
+
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "row";
+            btn.dataset.id = it.id;
+            btn.dataset.shape = it.shape;
+            btn.setAttribute("aria-label", `${it.title}, ${it.dateFrom} to ${it.dateTo}, curated by ${it.curator}, ${it.availability}% tickets remaining`);
+
+            const title = document.createElement("div");
+            title.className = "title";
+            title.appendChild(document.createTextNode(it.title));
+
+            const dates = document.createElement("div");
+            dates.className = "date";
+            dates.textContent = `${it.dateFrom}—${it.dateTo}`;
+
+            const curator = document.createElement("div");
+            curator.className = "tiny";
+            curator.textContent = it.curator;
+
+            const tickets = document.createElement("div");
+            tickets.className = "avail";
+            const bar = document.createElement("span");
+            bar.className = "bar";
+            const fill = document.createElement("i");
+            fill.style.setProperty("--w", `${it.availability}%`);
+            bar.appendChild(fill);
+            const pct = document.createElement("span");
+            pct.className = "pct";
+            pct.textContent = `${it.availability}%`;
+            tickets.appendChild(bar);
+            tickets.appendChild(pct);
+
+            btn.appendChild(title);
+            btn.appendChild(dates);
+            btn.appendChild(curator);
+            btn.appendChild(tickets);
+
+            const activate = () => {
+              const rows = listEl.querySelectorAll(".row");
+              rows.forEach((r) => r.setAttribute("data-active", "false"));
+              btn.setAttribute("data-active", "true");
+              updatePreview(it);
+            };
+
+            btn.addEventListener("mouseenter", activate);
+            btn.addEventListener("focus", activate);
+
+            // Set first item active by default for immediate visual payoff
+            if (idx === 0) {
+              btn.setAttribute("data-active", "true");
+              updatePreview(it);
+            } else {
+              btn.setAttribute("data-active", "false");
+            }
+
+            li.appendChild(btn);
+            listEl.appendChild(li);
+          });
+        }
+
+        let items = createExhibitions(9);
+        render(items);
+
+        btnShuffle.addEventListener("click", () => {
+          items = shuffleInPlace(items);
+          render(items);
+        });
+
+        function setGrid(on) {
+          page.style.setProperty("--grid-overlay", on ? "1" : "0");
+          btnGrid.setAttribute("aria-pressed", on ? "true" : "false");
+        }
+
+        let gridOn = false;
+        btnGrid.addEventListener("click", () => {
+          gridOn = !gridOn;
+          setGrid(gridOn);
+        });
+
+        window.addEventListener("keydown", (e) => {
+          if (e.key === "g" || e.key === "G") {
+            gridOn = !gridOn;
+            setGrid(gridOn);
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>
+
+
