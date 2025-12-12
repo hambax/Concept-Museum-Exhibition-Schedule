@@ -23,3 +23,7 @@ Then open `http://127.0.0.1:5564/`.
 2. In GitHub: **Settings → Pages**.
 3. Set **Build and deployment** to **Deploy from a branch**.
 4. Choose **Branch: main** and **Folder: /** (root).
+
+## License
+This project is licensed under **Creative Commons Attribution–NonCommercial 4.0 International (CC BY-NC 4.0)**.
+See `LICENSE`, or view the license at `https://creativecommons.org/licenses/by-nc/4.0/`.
